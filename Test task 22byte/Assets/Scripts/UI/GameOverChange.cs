@@ -16,12 +16,19 @@ public class GameOverChange : MonoBehaviour
     {
         GlobalEventManager.OnDeath += Fail;
         GlobalEventManager.OnWin += Win;
+        GlobalEventManager.OnRetry += ReSubscribeFailEvent;
     }
 
     private void OnDestroy()
     {
         GlobalEventManager.OnDeath -= Fail;
         GlobalEventManager.OnWin -= Win;
+        GlobalEventManager.OnRetry -= ReSubscribeFailEvent;
+    }
+
+    public void ReSubscribeFailEvent()
+    {
+        GlobalEventManager.OnDeath += Fail;
     }
 
     private void Fail()
@@ -33,10 +40,11 @@ public class GameOverChange : MonoBehaviour
         StartCoroutine(UIScale(_failUI));
     }
 
-    private void Win()
+    private void Win(int money)
     {
+        GlobalData.CurrentMoney += money;
         _gameplayUI.SetActive(false);
-        _winUI.SetActive(true);
+        _winUI.GetComponent<WinUIActivateChanger>().Activate();
         _winUI.transform.localScale = Vector3.zero;
         StartCoroutine(UIScale(_winUI));
     }

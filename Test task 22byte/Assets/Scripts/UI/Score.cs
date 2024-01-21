@@ -17,22 +17,32 @@ public class Score : MonoBehaviour
 
     private void Start()
     {
+        GlobalEventManager.OnRetry += RetryScore;
         GlobalEventManager.OnGetFruit += GetFruit;
-        _textMeshPro.text = string.Format("0/{0}", GetCountOfFruit());
+        RetryScore();
     }
 
     private void OnDestroy()
     {
+        GlobalEventManager.OnRetry -= RetryScore;
         GlobalEventManager.OnGetFruit -= GetFruit;
+    }
+
+    private void RetryScore()
+    {
+        _countMax = 0;
+        _currentCount = 0;
+        GlobalEventManager.SendOnGetCurrentMaxFruitCount(GetCountOfFruit());
+        _textMeshPro.text = string.Format("0/{0}", GlobalData.CurrentMaxFruitCount);
     }
 
     private int GetCountOfFruit()
     {
-        for (int i = 0; i < _gridPlacer.TileSetting.GetLength(0); i++)
+        for (int i = 0; i < _gridPlacer.CurrentTileSetting.GetLength(0); i++)
         {
-            for (int j = 0; j < _gridPlacer.TileSetting.GetLength(1); j++)
+            for (int j = 0; j < _gridPlacer.CurrentTileSetting.GetLength(1); j++)
             {
-                if (_gridPlacer.TileSetting[i, j] != 0)
+                if (_gridPlacer.CurrentTileSetting[i, j] != 0)
                     _countMax++;
             }
         }
@@ -52,7 +62,7 @@ public class Score : MonoBehaviour
 
         if (_currentCount == _countMax)
         {
-            GlobalEventManager.SendOnWin();
+            GlobalEventManager.SendOnWin(GlobalData.CurrentMaxFruitCount);
         }
     }
 

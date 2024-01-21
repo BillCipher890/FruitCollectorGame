@@ -10,15 +10,32 @@ public class PlayerMover : MonoBehaviour
 
     private Coroutine _moveCoroutine;
 
+    [HideInInspector]
+    public Vector3 startPlayerPosition;
+    [HideInInspector]
+    public Quaternion startPlayerRotation;
+
     void Start()
     {
-        GlobalEventManager.OnDeath += Death;
-        _moveCoroutine = StartCoroutine(Move());
+        startPlayerPosition = transform.position;
+        startPlayerRotation = transform.rotation;
+
+        GlobalEventManager.OnDeath += StopMoveCoroutine;
+        GlobalEventManager.OnWin += Win;
+        GlobalEventManager.OnRetry += OnRetry;
+        StartMove();
     }
 
     private void OnDestroy()
     {
-        GlobalEventManager.OnDeath -= Death;
+        GlobalEventManager.OnDeath -= StopMoveCoroutine;
+        GlobalEventManager.OnWin -= Win;
+        GlobalEventManager.OnRetry -= OnRetry;
+    }
+
+    public void StartMove()
+    {
+        _moveCoroutine = StartCoroutine(Move());
     }
 
     IEnumerator Move()
@@ -30,8 +47,20 @@ public class PlayerMover : MonoBehaviour
         }
     }
 
-    private void Death()
+    private void Win(int money)
+    {
+        StopMoveCoroutine();
+    }
+
+    private void StopMoveCoroutine()
     {
         StopCoroutine(_moveCoroutine);
+    }
+
+    private void OnRetry()
+    {
+        transform.position = startPlayerPosition;
+        transform.rotation = startPlayerRotation;
+        StartMove();
     }
 }
