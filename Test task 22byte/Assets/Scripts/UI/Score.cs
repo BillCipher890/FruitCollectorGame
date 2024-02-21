@@ -1,3 +1,4 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 
@@ -30,6 +31,13 @@ public class Score : MonoBehaviour
 
     private void RetryScore()
     {
+        StartCoroutine(RetryScoreAfterTime(0.1f));
+    }
+
+    IEnumerator RetryScoreAfterTime(float seconds)
+    {
+        yield return new WaitForSeconds(seconds);
+
         _countMax = 0;
         _currentCount = 0;
         GlobalEventManager.SendOnGetCurrentMaxFruitCount(GetCountOfFruit());
